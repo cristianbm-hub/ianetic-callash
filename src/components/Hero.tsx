@@ -121,7 +121,7 @@ const Hero = () => {
                     <Phone className="w-4 h-4 text-ianetic-600" />
                   </div>
                   <div className="bg-gray-100 rounded-lg rounded-tl-none p-3 text-sm max-w-xs">
-                    Perfecto. He reservado una mesa para 4 personas este viernes a las 8 PM. ¿Desea añadir alguna solicitud especial?
+                    Perfecto. He reservado una mesa para 4 personas este viernes a las 9 PM. ¿Desea añadir alguna solicitud especial?
                   </div>
                 </div>
                 
