@@ -109,7 +109,7 @@ const Hero = () => {
                 
                 <div className="flex items-start space-x-3 justify-end">
                   <div className="bg-ianetic-500 text-white rounded-lg rounded-tr-none p-3 text-sm max-w-xs">
-                    Quisiera reservar una mesa para 4 personas este viernes a las 8 PM.
+                    Quisiera reservar una mesa para 4 personas este viernes a las 9 PM.
                   </div>
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
                     <MessageCircle className="w-4 h-4 text-gray-600" />
