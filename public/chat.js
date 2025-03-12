@@ -27,7 +27,6 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-            display: none;
             width: 380px;
             height: 600px;
             background: var(--chat--color-background);
@@ -36,6 +35,10 @@
             border: 1px solid rgba(133, 79, 255, 0.2);
             overflow: hidden;
             font-family: inherit;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            opacity: 0;
+            transform: translateY(20px);
+            visibility: hidden;
         }
 
         .n8n-chat-widget .chat-container.position-left {
@@ -44,8 +47,9 @@
         }
 
         .n8n-chat-widget .chat-container.open {
-            display: flex;
-            flex-direction: column;
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
         }
 
         .n8n-chat-widget .brand-header {
@@ -654,7 +658,15 @@
     });
     
     toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
+        if (chatContainer.classList.contains('open')) {
+            chatContainer.classList.remove('open');
+            setTimeout(() => {
+                chatContainer.style.visibility = 'hidden';
+            }, 500); // Espera a que la transición termine
+        } else {
+            chatContainer.style.visibility = 'visible';
+            chatContainer.classList.add('open');
+        }
     });
 
     // Add close button handlers
@@ -662,6 +674,9 @@
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
             chatContainer.classList.remove('open');
+            setTimeout(() => {
+                chatContainer.style.visibility = 'hidden';
+            }, 500); // Espera a que la transición termine
         });
     });
 
