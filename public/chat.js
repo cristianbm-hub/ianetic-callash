@@ -5,7 +5,7 @@
         iniciarChat: "Iniciar Chat",
         whatsapp: "WhatsApp",
         escribirMensaje: "Escribe tu mensaje aqui...",
-        atencionCliente: "Atención al Cliente1",
+        atencionCliente: "Atención al Cliente",
         error: "Error:",
         hola: "Hola 👋, ¿Cómo podemos ayudarte?",
         respondemosRapidamente: "respondemos rapidamente",
