@@ -1,5 +1,17 @@
 // Chat Widget Script
 (function() {
+    // Variables de texto para traducción
+    const TEXTOS = {
+        iniciarChat: "Iniciar Chat",
+        whatsapp: "WhatsApp",
+        escribirMensaje: "Escribe tu mensaje aqui...",
+        atencionCliente: "Atención al Cliente1",
+        error: "Error:",
+        hola: "Hola 👋, ¿Cómo podemos ayudarte?",
+        respondemosRapidamente: "respondemos rapidamente",
+        // Agrega más textos según sea necesario
+    };
+
     // Create and inject styles
     const styles = `
         .n8n-chat-widget {
@@ -430,20 +442,20 @@
             <button class="close-button">&times;</button>
         </div>
         <div class="new-conversation">
-            <h2 class="welcome-text">${config.branding.welcomeText}</h2>
+            <h2 class="welcome-text">${TEXTOS.hola}</h2>
             <button class="new-chat-btn">
                 <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                 </svg>
-                Iniciar Chat
+                ${TEXTOS.iniciarChat}
             </button>
             <button class="new-chat-btn whatsapp" onclick="window.open('https://wa.me/+34650088258', '_blank')">
                 <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.115 1.523 5.847L0 24l6.352-1.66C8.085 23.447 10.077 24 12.2 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.676-.52-5.2-1.42l-.37-.22-3.76.98.98-3.76-.22-.37C2.52 15.676 2 13.89 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm5.2-7.8c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.02-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.99 2.68 1.13 2.87.14.18 1.95 2.98 4.73 4.07.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32z"/>
                 </svg>
-                WhatsApp
+                ${TEXTOS.whatsapp}
             </button>
-            <p class="response-text">${config.branding.responseTimeText}</p>
+            <p class="response-text">${TEXTOS.respondemosRapidamente}</p>
         </div>
     `;
 
@@ -464,7 +476,7 @@
                 </div>
             </div>
             <div class="chat-input">
-                <textarea placeholder="Escribe tu mensaje aqui..." rows="1"></textarea>
+                <textarea placeholder="${TEXTOS.escribirMensaje}" rows="1"></textarea>
                 <button type="submit" class="send-button">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="send-icon">
                         <path fill="currentColor" d="M2.01 21l20.99-9L2.01 3 2 10l15 2-15 2z"/>
@@ -536,7 +548,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
                         <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
                     </svg>
-                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">Atención al Cliente</strong>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
                 </div>
                 <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
                 <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
@@ -602,7 +614,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
                         <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
                     </svg>
-                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">Atención al Cliente</strong>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
                 </div>
                 <span>${Array.isArray(data) ? data[0].output : data.output}</span>
                 <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
