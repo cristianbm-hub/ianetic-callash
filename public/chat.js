@@ -241,7 +241,7 @@
             color: var(--chat--color-font);
             resize: none;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
