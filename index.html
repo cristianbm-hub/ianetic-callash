@@ -33,10 +33,48 @@
     <link rel="canonical" href="https://www.ianetic.com" />
   </head>
 
+
+
+
+
+
+
+  
   <body>
     <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+
+
+
+
+  <!-- Widget Configuration -->
+<script>
+  window.ChatWidgetConfig = {
+      webhook: {
+          url: 'https://n8n.xrocket.app/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
+          route: 'general'
+      },
+      branding: {
+          logo: 'public/favicon.ico',
+          name: 'ianetic', // Your company name
+          welcomeText: 'Hola 👋, ¿Cómo podemos ayudarte?', //Welcome message
+          responseTimeText: 'respondemos rapidamente' //Response time message
+      },
+      style: {
+          primaryColor: '#854fff', //Primary color
+          secondaryColor: '#6b3fd4', //Secondary color
+          position: 'right', //Position of the widget (left or right)
+          backgroundColor: '#ffffff', //Background color of the chat widget
+          fontColor: '#333333' //Text color for messages and interface
+      }
+  };
+</script>
+<script src="src/components/chat.js"></script>
+<!-- Widget Script -->
+
+
+
 </html>
