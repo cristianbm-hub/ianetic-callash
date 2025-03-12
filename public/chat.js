@@ -533,43 +533,10 @@
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.innerHTML = `
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #6fabe6; margin-right: 8px;">
-                        <svg id="Capa_1" enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <g>
-                                    <path d="m420.989 165v45h-30v-45c0-74.44-60.55-135-135-135-.5 0-1 0-1.49.01-73.76.8-133.51 61.05-133.51 134.99v45h-30v-45c0-90.48 73.23-164.19 163.51-164.99.5-.01.99-.01 1.49-.01 90.97 0 165 74.02 165 165z" fill="#4d4d99"/>
-                                </g>
-                                <path d="m420.989 165v45h-30v-45c0-74.44-60.55-135-135-135-.51 0-.98.14-1.49.15v-30.14c.5-.01.99-.01 1.49-.01 90.97 0 165 74.02 165 165z" fill="#336"/>
-                                <g>
-                                    <path d="m149.499 361.069c-33.076 0-60-26.909-60-60s26.924-60 60-60h32.783l3.545 9.961c14.06 39.329 51.681 45.787 55.166 47.754v61.084h-75c-2.565 0-1.574-.208-16.494 1.201z" fill="#ffda45"/>
-                                </g>
-                                <g>
-                                    <path d="m345.994 359.868h-75v-61.084c3.666-2.07 40.989-8.186 55.195-47.769l3.574-9.946h29.736c33.076 0 60 26.909 60 60 0 33.252-26.162 59.604-59.531 60-3.348-.61-10.896-1.201-13.974-1.201z" fill="#ffbe40"/>
-                                </g>
-                                <path d="m451.001 434.87v77.13h-136.502l-60-87.663 60-94.467h31.5c57.371 0 105.002 45.891 105.002 105z" fill="#66f"/>
-                                <path d="m194.499 329.87 60 95.803-60 86.327h-133.5v-77.13c0-58.847 47.511-105 105-105z" fill="#69f"/>
-                                <g id="Support_5_">
-                                    <g>
-                                        <path d="m180.994 270h-45c-24.814 0-45-20.186-45-45v-30c0-24.814 20.186-45 45-45h45z" fill="#69f"/>
-                                    </g>
-                                    <g>
-                                        <path d="m375.994 270h-45v-120h45c24.814 0 45 20.186 45 45v30c0 24.814-20.186 45-45 45z" fill="#66f"/>
-                                    </g>
-                                </g>
-                                <g>
-                                    <path d="m194.499 406.069h120v105.931h-120z" fill="#ecf2ff"/>
-                                </g>
-                                <path d="m254.499 406.069h60v105.931h-60z" fill="#d9e5ff"/>
-                                <path d="m300.999 329.87v-42.301l-20.4 7.8c-32.086 12.835-59.238-5.181-69.6-7.8v42.301h-16.5v76.199l57.327 30 62.673-30v-76.199z" fill="#ffccb3"/>
-                                <path d="m300.999 287.569-20.4 7.8c-9.23 3.693-17.968 4.667-26.1 4.354v135.066l60-28.72v-76.199h-13.5z" fill="#fa9"/>
-                                <path d="m359.499 166.069-75 30h-60l-75-30c0-57.9 47.1-105 105-105 57.734 0 105 47.164 105 105z" fill="#ffda45"/>
-                                <path d="m284.499 196.069 75-30c0-57.836-47.267-105-105-105v135z" fill="#ffbe40"/>
-                                <path d="m359.499 166.069v60c0 57.9-47.1 105-105 105s-105-47.1-105-105v-60h75c16.5 0 30-13.5 30-30 0 16.5 13.5 30 30 30z" fill="#ffe6cc"/>
-                                <path d="m359.499 226.069v-60h-75c-16.5 0-30-13.5-30-30v195c57.9 0 105-47.1 105-105z" fill="#ffccb3"/>
-                            </g>
-                        </svg>
-                    </div>
-                    <strong style="margin-right: 8px;">Atención al Cliente</strong>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                    </svg>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">Atención al Cliente</strong>
                 </div>
                 <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
                 <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
@@ -632,43 +599,10 @@
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.innerHTML = `
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #6fabe6; margin-right: 8px;">
-                        <svg id="Capa_1" enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <g>
-                                    <path d="m420.989 165v45h-30v-45c0-74.44-60.55-135-135-135-.5 0-1 0-1.49.01-73.76.8-133.51 61.05-133.51 134.99v45h-30v-45c0-90.48 73.23-164.19 163.51-164.99.5-.01.99-.01 1.49-.01 90.97 0 165 74.02 165 165z" fill="#4d4d99"/>
-                                </g>
-                                <path d="m420.989 165v45h-30v-45c0-74.44-60.55-135-135-135-.51 0-.98.14-1.49.15v-30.14c.5-.01.99-.01 1.49-.01 90.97 0 165 74.02 165 165z" fill="#336"/>
-                                <g>
-                                    <path d="m149.499 361.069c-33.076 0-60-26.909-60-60s26.924-60 60-60h32.783l3.545 9.961c14.06 39.329 51.681 45.787 55.166 47.754v61.084h-75c-2.565 0-1.574-.208-16.494 1.201z" fill="#ffda45"/>
-                                </g>
-                                <g>
-                                    <path d="m345.994 359.868h-75v-61.084c3.666-2.07 40.989-8.186 55.195-47.769l3.574-9.946h29.736c33.076 0 60 26.909 60 60 0 33.252-26.162 59.604-59.531 60-3.348-.61-10.896-1.201-13.974-1.201z" fill="#ffbe40"/>
-                                </g>
-                                <path d="m451.001 434.87v77.13h-136.502l-60-87.663 60-94.467h31.5c57.371 0 105.002 45.891 105.002 105z" fill="#66f"/>
-                                <path d="m194.499 329.87 60 95.803-60 86.327h-133.5v-77.13c0-58.847 47.511-105 105-105z" fill="#69f"/>
-                                <g id="Support_5_">
-                                    <g>
-                                        <path d="m180.994 270h-45c-24.814 0-45-20.186-45-45v-30c0-24.814 20.186-45 45-45h45z" fill="#69f"/>
-                                    </g>
-                                    <g>
-                                        <path d="m375.994 270h-45v-120h45c24.814 0 45 20.186 45 45v30c0 24.814-20.186 45-45 45z" fill="#66f"/>
-                                    </g>
-                                </g>
-                                <g>
-                                    <path d="m194.499 406.069h120v105.931h-120z" fill="#ecf2ff"/>
-                                </g>
-                                <path d="m254.499 406.069h60v105.931h-60z" fill="#d9e5ff"/>
-                                <path d="m300.999 329.87v-42.301l-20.4 7.8c-32.086 12.835-59.238-5.181-69.6-7.8v42.301h-16.5v76.199l57.327 30 62.673-30v-76.199z" fill="#ffccb3"/>
-                                <path d="m300.999 287.569-20.4 7.8c-9.23 3.693-17.968 4.667-26.1 4.354v135.066l60-28.72v-76.199h-13.5z" fill="#fa9"/>
-                                <path d="m359.499 166.069-75 30h-60l-75-30c0-57.9 47.1-105 105-105 57.734 0 105 47.164 105 105z" fill="#ffda45"/>
-                                <path d="m284.499 196.069 75-30c0-57.836-47.267-105-105-105v135z" fill="#ffbe40"/>
-                                <path d="m359.499 166.069v60c0 57.9-47.1 105-105 105s-105-47.1-105-105v-60h75c16.5 0 30-13.5 30-30 0 16.5 13.5 30 30 30z" fill="#ffe6cc"/>
-                                <path d="m359.499 226.069v-60h-75c-16.5 0-30-13.5-30-30v195c57.9 0 105-47.1 105-105z" fill="#ffccb3"/>
-                            </g>
-                        </svg>
-                    </div>
-                    <strong style="margin-right: 8px;">Atención al Cliente</strong>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                    </svg>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">Atención al Cliente</strong>
                 </div>
                 <span>${Array.isArray(data) ? data[0].output : data.output}</span>
                 <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
