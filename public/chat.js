@@ -1,4 +1,3 @@
-
 // Chat Widget Script
 (function() {
     // Create and inject styles
