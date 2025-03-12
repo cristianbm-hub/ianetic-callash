@@ -261,6 +261,7 @@
             font-family: inherit;
             font-weight: 500;
             box-shadow: none;
+            display: none;
         }
 
         .n8n-chat-widget .chat-input button:hover {
@@ -712,5 +713,13 @@
         button.addEventListener('click', () => {
             chatContainer.classList.remove('open');
         });
+    });
+
+    textarea.addEventListener('input', () => {
+        if (textarea.value.trim()) {
+            sendButton.style.display = 'block';
+        } else {
+            sendButton.style.display = 'none';
+        }
     });
 })();
