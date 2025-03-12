@@ -338,6 +338,25 @@
                 transform: scale(1);
             }
         }
+
+        @media (max-width: 768px) {
+            .n8n-chat-widget .chat-container {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                top: 0;
+                border-radius: 0;
+            }
+
+            .n8n-chat-widget .chat-toggle {
+                bottom: 10px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+            }
+        }
     `;
 
     // Load Geist font
