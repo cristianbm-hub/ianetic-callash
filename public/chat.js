@@ -279,6 +279,15 @@
             font-family: inherit;
             font-size: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+
+        .n8n-chat-widget .chat-input textarea:focus {
+            border-color: var(--chat--color-primary);
+            box-shadow: 0 2px 8px rgba(133, 79, 255, 0.15);
         }
 
         .n8n-chat-widget .chat-input textarea::placeholder {
