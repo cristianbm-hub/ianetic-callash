@@ -395,6 +395,10 @@
                 width: 50px;
                 height: 50px;
             }
+            
+            .n8n-chat-widget .emoji-button {
+                display: none !important; /* Ocultar botón de emojis en dispositivos móviles */
+            }
         }
 
         .n8n-chat-widget .emoji-panel {
