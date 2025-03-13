@@ -4,6 +4,8 @@
     const TEXTOS = {
         iniciarChat: "Iniciar Chat",
         whatsapp: "WhatsApp",
+        correo: "Correo electrónico",
+        llamada: "Llamar por teléfono",
         escribirMensaje: "Escribe tu mensaje aqui...",
         atencionCliente: "Atención al Cliente",
         error: "Error:",
@@ -142,6 +144,16 @@
 
         .n8n-chat-widget .new-chat-btn.whatsapp {
             background: #128C7E; /* Color verde más oscuro de WhatsApp */
+            color: white;
+        }
+
+        .n8n-chat-widget .new-chat-btn.email {
+            background: #D44638; /* Rojo similar a Gmail */
+            color: white;
+        }
+        
+        .n8n-chat-widget .new-chat-btn.phone {
+            background: #4CAF50; /* Verde para llamadas */
             color: white;
         }
 
@@ -507,10 +519,6 @@
 
     // Default configuration
     const defaultConfig = {
-        webhook: {
-            url: '',
-            route: ''
-        },
         branding: {
             logo: '',
             name: '',
@@ -529,17 +537,45 @@
             fontColor: '#333333'
         },
         contact: {
-            whatsappNumber: ''
+            chat: {
+                enabled: true,
+                webhook: {
+                    url: '',
+                    route: ''
+                }
+            },
+            whatsapp: {
+                enabled: false,
+                number: ''
+            },
+            email: {
+                enabled: false,
+                address: ''
+            },
+            phone: {
+                enabled: false,
+                number: ''
+            }
         }
     };
 
     // Merge user config with defaults
     const config = window.ChatWidgetConfig ? 
         {
-            webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
             branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
             style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style },
-            contact: { ...defaultConfig.contact, ...window.ChatWidgetConfig.contact }
+            contact: { 
+                chat: { 
+                    enabled: window.ChatWidgetConfig.contact?.chat?.enabled ?? defaultConfig.contact.chat.enabled,
+                    webhook: { 
+                        ...defaultConfig.contact.chat.webhook, 
+                        ...window.ChatWidgetConfig.contact?.chat?.webhook 
+                    }
+                },
+                whatsapp: { ...defaultConfig.contact.whatsapp, ...window.ChatWidgetConfig.contact?.whatsapp },
+                email: { ...defaultConfig.contact.email, ...window.ChatWidgetConfig.contact?.email },
+                phone: { ...defaultConfig.contact.phone, ...window.ChatWidgetConfig.contact?.phone }
+            }
         } : defaultConfig;
 
     // Prevent multiple initializations
@@ -547,6 +583,142 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
+
+    // Funciones principales
+    function generateUUID() {
+        return crypto.randomUUID();
+    }
+
+    function startNewConversation() {
+        currentSessionId = generateUUID();
+        const data = [{
+            action: "loadPreviousSession",
+            sessionId: currentSessionId,
+            route: config.contact.chat.webhook.route,
+            metadata: {
+                userId: ""
+            }
+        }];
+
+        // Aplicar clase de animación de salida a los elementos a ocultar
+        const brandHeader = chatContainer.querySelector('.brand-header');
+        const newConversation = chatContainer.querySelector('.new-conversation');
+        
+        brandHeader.classList.add('fade-out');
+        newConversation.classList.add('fade-out');
+        
+        // Mostrar la interfaz del chat con animación de entrada
+        setTimeout(() => {
+            brandHeader.style.display = 'none';
+            newConversation.style.display = 'none';
+            
+            chatInterface.classList.add('fade-in');
+            chatInterface.classList.add('active');
+            
+            // Continuar con el resto del código de inicio de conversación
+            fetch(config.contact.chat.webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta de la API');
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                        </svg>
+                        <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                    </div>
+                    <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
+                    <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                        <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                `;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'chat-message bot';
+                errorMessageDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                        </svg>
+                        <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                    </div>
+                    <span>${TEXTOS.noDisponible}</span>
+                    <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                        <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                `;
+                messagesContainer.appendChild(errorMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }, 300); // Tiempo corto para que se vea la animación
+    }
+
+    // Generar HTML para los botones de contacto basado en la configuración
+    function generateContactButtonsHTML() {
+        let buttonsHTML = '';
+        
+        // Botón de chat (si está habilitado)
+        if (config.contact.chat.enabled) {
+            buttonsHTML += `
+            <button class="new-chat-btn chat-button">
+                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+                </svg>
+                ${TEXTOS.iniciarChat}
+            </button>`;
+        }
+        
+        // Botón de WhatsApp (si está habilitado y hay número)
+        if (config.contact.whatsapp.enabled && config.contact.whatsapp.number) {
+            buttonsHTML += `
+            <button class="new-chat-btn whatsapp" onclick="window.open('https://wa.me/${config.contact.whatsapp.number}', '_blank')">
+                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.115 1.523 5.847L0 24l6.352-1.66C8.085 23.447 10.077 24 12.2 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.676-.52-5.2-1.42l-.37-.22-3.76.98.98-3.76-.22-.37C2.52 15.676 2 13.89 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm5.2-7.8c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.02-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.99 2.68 1.13 2.87.14.18 1.95 2.98 4.73 4.07.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.18-.52-.32z"/>
+                </svg>
+                ${TEXTOS.whatsapp}
+            </button>`;
+        }
+        
+        // Botón de email (si está habilitado y hay dirección)
+        if (config.contact.email.enabled && config.contact.email.address) {
+            buttonsHTML += `
+            <button class="new-chat-btn email" onclick="window.open('mailto:${config.contact.email.address}', '_blank')">
+                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                </svg>
+                ${TEXTOS.correo}
+            </button>`;
+        }
+        
+        // Botón de teléfono (si está habilitado y hay número)
+        if (config.contact.phone.enabled && config.contact.phone.number) {
+            buttonsHTML += `
+            <button class="new-chat-btn phone" onclick="window.open('tel:${config.contact.phone.number}', '_blank')">
+                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                </svg>
+                ${TEXTOS.llamada}
+            </button>`;
+        }
+        
+        return buttonsHTML;
+    }
 
     // Create widget container
     const widgetContainer = document.createElement('div');
@@ -569,18 +741,7 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${TEXTOS.hola}</h2>
-            <button class="new-chat-btn">
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                </svg>
-                ${TEXTOS.iniciarChat}
-            </button>
-            <button class="new-chat-btn whatsapp" onclick="window.open('https://wa.me/${config.contact.whatsappNumber}', '_blank')">
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.115 1.523 5.847L0 24l6.352-1.66C8.085 23.447 10.077 24 12.2 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.676-.52-5.2-1.42l-.37-.22-3.76.98.98-3.76-.22-.37C2.52 15.676 2 13.89 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm5.2-7.8c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.02-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.99 2.68 1.13 2.87.14.18 1.95 2.98 4.73 4.07.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32z"/>
-                </svg>
-                ${TEXTOS.whatsapp}
-            </button>
+            ${generateContactButtonsHTML()}
             <p class="response-text">${TEXTOS.respondemosRapidamente}</p>
         </div>
     `;
@@ -652,7 +813,7 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    // Ahora que el DOM está listo, podemos acceder a los elementos
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
@@ -661,202 +822,27 @@
     const emojiPanel = chatContainer.querySelector('.emoji-panel');
     const emojiCategories = chatContainer.querySelectorAll('.emoji-category');
     const emojiContent = chatContainer.querySelector('.emoji-content');
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
 
-    function generateUUID() {
-        return crypto.randomUUID();
-    }
-
-    function startNewConversation() {
-        currentSessionId = generateUUID();
-        const data = [{
-            action: "loadPreviousSession",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            metadata: {
-                userId: ""
-            }
-        }];
-
-        // Aplicar clase de animación de salida a los elementos a ocultar
-        const brandHeader = chatContainer.querySelector('.brand-header');
-        const newConversation = chatContainer.querySelector('.new-conversation');
-        
-        brandHeader.classList.add('fade-out');
-        newConversation.classList.add('fade-out');
-        
-        // Mostrar la interfaz del chat con animación de entrada
-        setTimeout(() => {
-            brandHeader.style.display = 'none';
-            newConversation.style.display = 'none';
-            
-            chatInterface.classList.add('fade-in');
-            chatInterface.classList.add('active');
-            
-            // Continuar con el resto del código de inicio de conversación
-            fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta de la API');
-                }
-                return response.json();
-            })
-            .then(responseData => {
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot';
-                botMessageDiv.innerHTML = `
-                    <div style="display: flex; align-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
-                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-                        </svg>
-                        <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
-                    </div>
-                    <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
-                    <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
-                        <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                `;
-                messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const errorMessageDiv = document.createElement('div');
-                errorMessageDiv.className = 'chat-message bot';
-                errorMessageDiv.innerHTML = `
-                    <div style="display: flex; align-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
-                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-                        </svg>
-                        <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
-                    </div>
-                    <span>${TEXTOS.noDisponible}</span>
-                    <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
-                        <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                `;
-                messagesContainer.appendChild(errorMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            });
-        }, 300); // Tiempo corto para que se vea la animación
-    }
-
-    async function sendMessage(message) {
-        const messageData = {
-            action: "sendMessage",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            chatInput: message,
-            metadata: {
-                userId: ""
-            }
-        };
-
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.innerHTML = `
-            <span>${message}</span>
-            <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
-                <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-        `;
-        messagesContainer.appendChild(userMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        // Crear y mostrar loader justo después del mensaje del usuario
-        const loader = document.createElement('div');
-        loader.className = 'chat-loader active';
-        loader.innerHTML = `
-            <div class="chat-loader-dots">
-                <div class="chat-loader-dot"></div>
-                <div class="chat-loader-dot"></div>
-                <div class="chat-loader-dot"></div>
-            </div>
-        `;
-        messagesContainer.appendChild(loader);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(messageData)
-            });
-            
-            const data = await response.json();
-            
-            // Eliminar loader
-            loader.remove();
-            
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-                    </svg>
-                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
-                </div>
-                <span>${Array.isArray(data) ? data[0].output : data.output}</span>
-                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
-                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-            `;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            // Eliminar loader en caso de error
-            loader.remove();
-            console.error('Error:', error);
-            
-            // Añadir mensaje de error al usuario
-            const errorMessageDiv = document.createElement('div');
-            errorMessageDiv.className = 'chat-message bot';
-            errorMessageDiv.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-                    </svg>
-                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
-                </div>
-                <span>${TEXTOS.noDisponible}</span>
-                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
-                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-            `;
-            messagesContainer.appendChild(errorMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-    }
-
-    newChatBtn.addEventListener('click', startNewConversation);
-    
-    sendButton.addEventListener('click', () => {
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
-        }
+    // Configurar el evento para los botones de cerrar
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            chatContainer.classList.remove('open');
+            setTimeout(() => {
+                chatContainer.style.visibility = 'hidden';
+            }, 500); // Espera a que la transición termine
+        });
     });
-    
-    textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-            }
+
+    // Configurar el botón de chat - AQUÍ ESTÁ EL CAMBIO PRINCIPAL
+    if (config.contact.chat.enabled) {
+        const chatButton = chatContainer.querySelector('.chat-button');
+        if (chatButton) {
+            chatButton.addEventListener('click', startNewConversation);
         }
-    });
-    
+    }
+
+    // Configurar el botón de alternar chat
     toggleButton.addEventListener('click', () => {
         if (chatContainer.classList.contains('open')) {
             chatContainer.classList.remove('open');
@@ -869,17 +855,28 @@
         }
     });
 
-    // Add close button handlers
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
-            setTimeout(() => {
-                chatContainer.style.visibility = 'hidden';
-            }, 500); // Espera a que la transición termine
-        });
+    // Configurar el botón de enviar
+    sendButton.addEventListener('click', () => {
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
+    });
+    
+    // Configurar el manejo de presionar Enter en el textarea
+    textarea.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+            }
+        }
     });
 
+    // Configurar la entrada de texto
     textarea.addEventListener('input', () => {
         if (textarea.value.trim()) {
             sendButton.style.display = 'block';
@@ -973,4 +970,94 @@
         }
     });
 
-})();
+    async function sendMessage(message) {
+        const messageData = {
+            action: "sendMessage",
+            sessionId: currentSessionId,
+            route: config.contact.chat.webhook.route,
+            chatInput: message,
+            metadata: {
+                userId: ""
+            }
+        };
+
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.innerHTML = `
+            <span>${message}</span>
+            <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+        `;
+        messagesContainer.appendChild(userMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Crear y mostrar loader justo después del mensaje del usuario
+        const loader = document.createElement('div');
+        loader.className = 'chat-loader active';
+        loader.innerHTML = `
+            <div class="chat-loader-dots">
+                <div class="chat-loader-dot"></div>
+                <div class="chat-loader-dot"></div>
+                <div class="chat-loader-dot"></div>
+            </div>
+        `;
+        messagesContainer.appendChild(loader);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(config.contact.chat.webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(messageData)
+            });
+            
+            const data = await response.json();
+            
+            // Eliminar loader
+            loader.remove();
+            
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                    </svg>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                </div>
+                <span>${Array.isArray(data) ? data[0].output : data.output}</span>
+                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+            `;
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            // Eliminar loader en caso de error
+            loader.remove();
+            console.error('Error:', error);
+            
+            // Añadir mensaje de error al usuario
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                    </svg>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                </div>
+                <span>${TEXTOS.noDisponible}</span>
+                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+            `;
+            messagesContainer.appendChild(errorMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+
+})();   
