@@ -10,6 +10,7 @@
         hola: "Hola 👋, ¿Cómo podemos ayudarte?",
         respondemosRapidamente: "respondemos rapidamente",
         emojis: "Emojis",
+        noDisponible: "Lo sentimos, en este momento no podemos atender por chat. Por favor, intenta más tarde o utiliza WhatsApp.",
         // Agrega más textos según sea necesario
     };
 
@@ -665,7 +666,7 @@
         return crypto.randomUUID();
     }
 
-    async function startNewConversation() {
+    function startNewConversation() {
         currentSessionId = generateUUID();
         const data = [{
             action: "loadPreviousSession",
@@ -676,39 +677,73 @@
             }
         }];
 
-        try {
-            const response = await fetch(config.webhook.url, {
+        // Aplicar clase de animación de salida a los elementos a ocultar
+        const brandHeader = chatContainer.querySelector('.brand-header');
+        const newConversation = chatContainer.querySelector('.new-conversation');
+        
+        brandHeader.classList.add('fade-out');
+        newConversation.classList.add('fade-out');
+        
+        // Mostrar la interfaz del chat con animación de entrada
+        setTimeout(() => {
+            brandHeader.style.display = 'none';
+            newConversation.style.display = 'none';
+            
+            chatInterface.classList.add('fade-in');
+            chatInterface.classList.add('active');
+            
+            // Continuar con el resto del código de inicio de conversación
+            fetch(config.webhook.url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta de la API');
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                        </svg>
+                        <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                    </div>
+                    <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
+                    <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                        <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                `;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'chat-message bot';
+                errorMessageDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                        </svg>
+                        <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                    </div>
+                    <span>${TEXTOS.noDisponible}</span>
+                    <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                        <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                `;
+                messagesContainer.appendChild(errorMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
-
-            const responseData = await response.json();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
-
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-                    </svg>
-                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
-                </div>
-                <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
-                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
-                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-            `;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        }, 300); // Tiempo corto para que se vea la animación
     }
 
     async function sendMessage(message) {
@@ -780,6 +815,24 @@
             // Eliminar loader en caso de error
             loader.remove();
             console.error('Error:', error);
+            
+            // Añadir mensaje de error al usuario
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot';
+            errorMessageDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 8px; fill: var(--chat--color-primary);">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                    </svg>
+                    <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
+                </div>
+                <span>${TEXTOS.noDisponible}</span>
+                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+            `;
+            messagesContainer.appendChild(errorMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     }
 
