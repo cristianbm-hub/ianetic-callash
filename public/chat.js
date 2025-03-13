@@ -9,6 +9,7 @@
         error: "Error:",
         hola: "Hola 👋, ¿Cómo podemos ayudarte?",
         respondemosRapidamente: "respondemos rapidamente",
+        emojis: "Emojis",
         // Agrega más textos según sea necesario
     };
 
@@ -248,6 +249,12 @@
             gap: 8px;
         }
 
+        .n8n-chat-widget .chat-input-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .n8n-chat-widget .chat-input textarea {
             flex: 1;
             padding: 12px;
@@ -266,6 +273,25 @@
             opacity: 0.6;
         }
 
+        .n8n-chat-widget .emoji-button {
+            background: none;
+            color: var(--chat--color-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .n8n-chat-widget .emoji-button:hover {
+            transform: scale(1.05);
+        }
+
         .n8n-chat-widget .chat-input button {
             background: none;
             color: var(--chat--color-primary);
@@ -278,10 +304,6 @@
             font-weight: 500;
             box-shadow: none;
             display: none;
-        }
-
-        .n8n-chat-widget .chat-input button:hover {
-            transform: scale(1.05);
         }
 
         .n8n-chat-widget .send-icon {
@@ -373,6 +395,97 @@
                 width: 50px;
                 height: 50px;
             }
+        }
+
+        .n8n-chat-widget .emoji-panel {
+            position: absolute;
+            bottom: 80px;
+            left: 16px;
+            right: 16px;
+            background: var(--chat--color-background);
+            border: 1px solid rgba(133, 79, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            display: none;
+            flex-direction: column;
+            width: auto;
+            max-height: 300px;
+            z-index: 1001;
+        }
+
+        .n8n-chat-widget .emoji-panel.active {
+            display: flex;
+        }
+
+        .n8n-chat-widget .emoji-content {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+            padding: 12px;
+            overflow-y: auto;
+            max-height: 220px;
+            order: 1;
+        }
+
+        .n8n-chat-widget .emoji-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 8px;
+            background: rgba(133, 79, 255, 0.05);
+            border-top: 1px solid rgba(133, 79, 255, 0.1);
+            border-radius: 0 0 12px 12px;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            order: 2;
+        }
+
+        .n8n-chat-widget .emoji-category {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .n8n-chat-widget .emoji-category:hover {
+            background-color: rgba(133, 79, 255, 0.1);
+        }
+
+        .n8n-chat-widget .emoji-category.active {
+            background-color: rgba(133, 79, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .n8n-chat-widget .emoji-item {
+            cursor: pointer;
+            font-size: 20px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            padding: 4px;
+        }
+
+        .n8n-chat-widget .emoji-item:hover {
+            background-color: rgba(133, 79, 255, 0.1);
+        }
+
+        .n8n-chat-widget .emoji-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .n8n-chat-widget .emoji-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .n8n-chat-widget .emoji-content::-webkit-scrollbar-thumb {
+            background: rgba(133, 79, 255, 0.2);
+            border-radius: 3px;
         }
     `;
 
@@ -483,13 +596,37 @@
                     </div>
                 </div>
             </div>
+            <div class="emoji-panel">
+                <div class="emoji-categories">
+                    <div class="emoji-category active" data-category="frequent">😀</div>
+                    <div class="emoji-category" data-category="smileys">😊</div>
+                    <div class="emoji-category" data-category="people">👍</div>
+                    <div class="emoji-category" data-category="animals">🐱</div>
+                    <div class="emoji-category" data-category="food">🍔</div>
+                    <div class="emoji-category" data-category="travel">✈️</div>
+                    <div class="emoji-category" data-category="activities">⚽</div>
+                    <div class="emoji-category" data-category="objects">💡</div>
+                    <div class="emoji-category" data-category="symbols">❤️</div>
+                    <div class="emoji-category" data-category="flags">🏁</div>
+                </div>
+                <div class="emoji-content"></div>
+            </div>
             <div class="chat-input">
+                <div class="chat-input-buttons">
+                    <button type="button" class="emoji-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="send-icon">
+                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-6c.78 2.34 2.72 4 5 4s4.22-1.66 5-4H7zm9-2c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm-8 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"/>
+                        </svg>
+                    </button>
+                </div>
                 <textarea placeholder="${TEXTOS.escribirMensaje}" rows="1"></textarea>
-                <button type="submit" class="send-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="send-icon">
-                        <path fill="currentColor" d="M2.01 21l20.99-9L2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
-                </button>
+                <div class="chat-input-buttons">
+                    <button type="submit" class="send-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="send-icon">
+                            <path fill="currentColor" d="M2.01 21l20.99-9L2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="chat-footer">
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
@@ -515,13 +652,13 @@
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const emojiButton = chatContainer.querySelector('.emoji-button');
+    const emojiPanel = chatContainer.querySelector('.emoji-panel');
+    const emojiCategories = chatContainer.querySelectorAll('.emoji-category');
+    const emojiContent = chatContainer.querySelector('.emoji-content');
 
     function generateUUID() {
         return crypto.randomUUID();
-    }
-
-    function formatTime(date) {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     async function startNewConversation() {
@@ -559,7 +696,9 @@
                     <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
                 </div>
                 <span>${Array.isArray(responseData) ? responseData[0].output : responseData.output}</span>
-                <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
+                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
             `;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -583,7 +722,9 @@
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.innerHTML = `
             <span>${message}</span>
-            <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
+            <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
         `;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -625,7 +766,9 @@
                     <strong style="margin-right: 8px; font-size: 16px; color: var(--chat--color-primary);">${TEXTOS.atencionCliente}</strong>
                 </div>
                 <span>${Array.isArray(data) ? data[0].output : data.output}</span>
-                <div style="font-size: 12px; color: #999; text-align: right;">${formatTime(new Date())}</div>
+                <div style="font-size: 12px; color: #999; text-align: right; margin-top: 4px;">
+                    <span>${new Date().toLocaleDateString([], { year: '2-digit', month: '2-digit', day: '2-digit' })} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
             `;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -683,8 +826,94 @@
     textarea.addEventListener('input', () => {
         if (textarea.value.trim()) {
             sendButton.style.display = 'block';
+            emojiButton.style.display = 'flex';
         } else {
             sendButton.style.display = 'none';
+            emojiButton.style.display = 'none';
         }
     });
+
+    // Definir los emojis por categoría
+    const emojisByCategory = {
+        frequent: ['😀', '😊', '👍', '❤️', '👋', '🙏', '😂', '🎉', '👏', '🤔', '😍'],
+        smileys: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳'],
+        people: ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👋', '🤚', '🖐️', '✋', '🖖', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️'],
+        animals: ['🐱', '🐶', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗'],
+        food: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '🌭', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🦪', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '☕', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊'],
+        travel: ['✈️', '🚀', '🚁', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🦽', '🦼', '🛺', '🚲', '🛴', '🛹', '🚏', '🛣️', '🛤️', '🛢️', '⛽', '🚨', '🚥', '🚦', '🛑', '🚧'],
+        activities: ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥅', '⛳', '🪁', '🎣', '🤿', '🎽', '🎿', '🛷', '🥌', '🎯', '🪂', '🎮', '🕹️', '🎲', '🎭', '🎨', '🧩'],
+        objects: ['💡', '🔦', '🕯️', '🧯', '🛒', '🚬', '⚰️', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳️', '💊', '💉', '🩸', '🩹', '🩺', '🔪', '🗡️', '⚔️', '🛡️', '🚪', '🪑', '🛏️', '🛋️', '🪒', '🧴', '🧷', '🧹', '🧺', '🧻', '🧼', '🧽', '🧯', '🛒'],
+        symbols: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️'],
+        flags: ['🏁', '🚩', '🎌', '🏴', '🏳️', '🏳️‍🌈', '🏴‍☠️']
+    };
+
+    // Función para cargar emojis de una categoría
+    function loadEmojisForCategory(category) {
+        emojiContent.innerHTML = '';
+        const emojis = emojisByCategory[category];
+        
+        emojis.forEach(emoji => {
+            const emojiElement = document.createElement('div');
+            emojiElement.className = 'emoji-item';
+            emojiElement.textContent = emoji;
+            emojiElement.addEventListener('click', () => {
+                insertEmoji(emoji);
+            });
+            emojiContent.appendChild(emojiElement);
+        });
+    }
+
+    // Función para insertar emoji en el textarea
+    function insertEmoji(emoji) {
+        const cursorPos = textarea.selectionStart;
+        const textBefore = textarea.value.substring(0, cursorPos);
+        const textAfter = textarea.value.substring(cursorPos);
+        
+        textarea.value = textBefore + emoji + textAfter;
+        
+        // Mover el cursor después del emoji insertado
+        textarea.selectionStart = cursorPos + emoji.length;
+        textarea.selectionEnd = cursorPos + emoji.length;
+        textarea.focus();
+        
+        // Mostrar el botón de enviar
+        sendButton.style.display = 'block';
+        
+        // Cerrar el panel de emojis después de seleccionar uno
+        emojiPanel.classList.remove('active');
+    }
+
+    // Cargar emojis frecuentes por defecto
+    loadEmojisForCategory('frequent');
+
+    // Manejar cambios de categoría
+    emojiCategories.forEach(category => {
+        category.addEventListener('click', () => {
+            // Quitar clase activa de todas las categorías
+            emojiCategories.forEach(cat => cat.classList.remove('active'));
+            // Añadir clase activa a la categoría seleccionada
+            category.classList.add('active');
+            // Cargar emojis de la categoría seleccionada
+            loadEmojisForCategory(category.dataset.category);
+        });
+    });
+
+    // Función para manejar el clic en el botón de emojis
+    emojiButton.addEventListener('click', () => {
+        // Alternar la visibilidad del panel de emojis
+        emojiPanel.classList.toggle('active');
+        
+        // Si el panel está visible, cargar los emojis frecuentes
+        if (emojiPanel.classList.contains('active')) {
+            loadEmojisForCategory('frequent');
+        }
+    });
+
+    // Cerrar el panel de emojis al hacer clic fuera de él
+    document.addEventListener('click', (event) => {
+        if (!emojiPanel.contains(event.target) && !emojiButton.contains(event.target)) {
+            emojiPanel.classList.remove('active');
+        }
+    });
+
 })();
