@@ -53,12 +53,8 @@
   <!-- Widget Configuration -->
 <script>
   window.ChatWidgetConfig = {
-      webhook: {
-          url: 'https://n8n.xrocket.app/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
-          route: 'general'
-      },
       branding: {
-          logo: 'https://ianetic-callash.onrender.com/favicon.ico',
+          logo: 'public/favicon.ico',
           name: 'ianetic', // Your company name  
       },
       style: {
@@ -69,11 +65,29 @@
           fontColor: '#333333' //Text color for messages and interface
       },
       contact: {
-          whatsappNumber: '+34650088258' // Añade el número de WhatsApp aquí
+          chat: {
+              enabled: true, // Habilitar/deshabilitar botón de chat
+              webhook: {
+                  url: 'https://n8n.xrocket.app/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
+                  route: 'general'
+              }
+          },
+          whatsapp: {
+              enabled: true, // Habilitar/deshabilitar botón de WhatsApp
+              number: '+34604957475' // Número de WhatsApp
+          },
+          email: {
+              enabled: true, // Habilitar/deshabilitar botón de correo
+              address: 'contacto@ianetic.com' // Dirección de correo
+          },
+          phone: {
+              enabled: true, // Habilitar/deshabilitar botón de teléfono
+              number: '+34604957475' // Número de teléfono
+          }
       },
   };
 </script>
-<script src="https://ianetic-callash.onrender.com/chat.js"></script>
+<script src="./chat.js"></script>
 <!-- Widget Script -->
 
 
