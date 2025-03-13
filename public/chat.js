@@ -426,8 +426,8 @@
         .n8n-chat-widget .emoji-panel {
             position: absolute;
             bottom: 80px;
-            left: 16px;
-            right: 16px;
+            left: 0;
+            right: 0;
             background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
             border-radius: 12px;
@@ -435,21 +435,60 @@
             padding: 0;
             display: none;
             flex-direction: column;
-            width: auto;
+            width: 100%;
             max-height: 300px;
             z-index: 1001;
+            transform-origin: bottom center;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
         }
 
         .n8n-chat-widget .emoji-panel.active {
             display: flex;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        @keyframes emojiPanelIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes emojiPanelOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+        }
+
+        .n8n-chat-widget .emoji-panel.active {
+            display: flex;
+            animation: emojiPanelIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .n8n-chat-widget .emoji-panel.closing {
+            display: flex;
+            animation: emojiPanelOut 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
         }
 
         .n8n-chat-widget .emoji-content {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
             gap: 4px;
             padding: 12px;
             overflow-y: auto;
+            overflow-x: hidden;
             max-height: 220px;
             order: 1;
         }
@@ -466,6 +505,8 @@
             bottom: 0;
             z-index: 2;
             order: 2;
+            justify-content: center;
+            overflow-x: hidden;
         }
 
         .n8n-chat-widget .emoji-category {
@@ -487,7 +528,7 @@
 
         .n8n-chat-widget .emoji-item {
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             aspect-ratio: 1;
             display: flex;
             align-items: center;
@@ -495,6 +536,8 @@
             border-radius: 6px;
             transition: background-color 0.2s;
             padding: 4px;
+            min-width: 32px;
+            min-height: 32px;
         }
 
         .n8n-chat-widget .emoji-item:hover {
@@ -698,7 +741,7 @@
             buttonsHTML += `
             <button class="new-chat-btn whatsapp" onclick="window.open('https://wa.me/${config.contact.whatsapp.number}', '_blank')">
                 <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.115 1.523 5.847L0 24l6.352-1.66C8.085 23.447 10.077 24 12.2 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.676-.52-5.2-1.42l-.37-.22-3.76.98.98-3.76-.22-.37C2.52 15.676 2 13.89 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm5.2-7.8c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.02-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.99 2.68 1.13 2.87.14.18 1.95 2.98 4.73 4.07.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.18-.52-.32z"/>
+                    <path fill="currentColor" d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.115 1.523 5.847L0 24l6.352-1.66C8.085 23.447 10.077 24 12.2 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.676-.52-5.2-1.42l-.37-.22-3.76.98.98-3.76-.22-.37C2.52 15.676 2 13.89 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm5.2-7.8c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.02-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.99 2.68 1.13 2.87.14.18 1.95 2.98 4.73 4.07.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.18-.18-.18-.52-.32z"/>
                 </svg>
                 ${TEXTOS.whatsapp}
             </button>`;
@@ -835,11 +878,16 @@
 
     // Configurar el evento para los botones de cerrar
     closeButtons.forEach(button => {
+        button.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+            </svg>
+        `;
         button.addEventListener('click', () => {
             chatContainer.classList.remove('open');
             setTimeout(() => {
                 chatContainer.style.visibility = 'hidden';
-            }, 500); // Espera a que la transición termine
+            }, 500);
         });
     });
 
